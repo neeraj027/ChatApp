@@ -67,10 +67,12 @@ const App = () => {
     });
 
     onSnapshot(collection(db, "Messages"), (snap) => {
-      snap.docs.map((item) => {
-        const id = item.id;
-        return { id, ...item.data() };
-      });
+      setMessages(
+        snap.docs.map((item) => {
+          const id = item.id;
+          return { id, ...item.data() };
+        })
+      );
     });
   }, []);
 
@@ -82,20 +84,15 @@ const App = () => {
             <Button onClick={logoutHandler} w={"full"} colorScheme="red">
               Logout
             </Button>
-            <VStack
-              flexDirection={"column-reverse"}
-              overflowY={"auto"}
-              h={"full"}
-              w={"full"}
-            >
-              {messages.map((item, index) => {
+            <VStack overflowY={"auto"} h={"full"} w={"full"}>
+              {messages.map((item) => {
                 <Message
-                  key={index}
-                  user={item.uri === user.uid ? "me" : ""}
+                  user={item.uri === user.uid ? "me" : "other"}
                   text={item.text}
                   uri={item.uri}
                 />;
               })}
+              <Message text={"hi"} user="other" uri={"uri"} />
             </VStack>
 
             <form
