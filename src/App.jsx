@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -23,6 +23,8 @@ import {
   collection,
   serverTimestamp,
   onSnapshot,
+  query,
+  orderBy,
 } from "firebase/firestore";
 
 const db = getFirestore(app);
@@ -44,6 +46,10 @@ const App = () => {
   const [msg, setMsg] = useState("");
   const [messages, setMessages] = useState([]);
 
+  const divForScroll = useRef(null);
+
+  const q = query(collection(db, "Messages"), orderBy("createdAt", "asc"));
+
   const submitHandler = async (e) => {
     e.preventDefault();
 
@@ -56,6 +62,7 @@ const App = () => {
       });
 
       setMsg("");
+      divForScroll.current.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.log(error);
     }
@@ -66,7 +73,7 @@ const App = () => {
       setUser(data);
     });
 
-    onSnapshot(collection(db, "Messages"), (snap) => {
+    onSnapshot(q, (snap) => {
       setMessages(
         snap.docs.map((item) => {
           const id = item.id;
@@ -84,17 +91,18 @@ const App = () => {
             <Button onClick={logoutHandler} w={"full"} colorScheme="red">
               Logout
             </Button>
-            <VStack overflowY={"auto"} h={"full"} w={"full"}>
+            <VStack padding={"5px"} overflowY={"auto"} h={"full"} w={"full"}>
               {messages.map((item) => {
-                <Message
-                  user={item.uri === user.uid ? "me" : "other"}
-                  text={item.text}
-                  uri={item.uri}
-                />;
+                return (
+                  <Message
+                    user={item.uri === user.uid ? "me" : "other"}
+                    text={item.text}
+                    uri={item.uri}
+                  />
+                );
               })}
-              <Message text={"hi"} user="other" uri={"uri"} />
+              <div ref={divForScroll}></div>
             </VStack>
-
             <form
               onSubmit={
                 msg === ""
