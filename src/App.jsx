@@ -54,14 +54,13 @@ const App = () => {
     e.preventDefault();
 
     try {
+      setMsg("");
       await addDoc(collection(db, "Messages"), {
         text: msg,
         uid: user.uid,
         uri: user.photoURL,
         createdAt: serverTimestamp(),
       });
-
-      setMsg("");
       divForScroll.current.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.log(error);
@@ -69,11 +68,11 @@ const App = () => {
   };
 
   useEffect(() => {
-    onAuthStateChanged(auth, (data) => {
+    const sub = onAuthStateChanged(auth, (data) => {
       setUser(data);
     });
 
-    onSnapshot(q, (snap) => {
+    const unsub = onSnapshot(q, (snap) => {
       setMessages(
         snap.docs.map((item) => {
           const id = item.id;
@@ -81,6 +80,10 @@ const App = () => {
         })
       );
     });
+    return () => {
+      sub();
+      unsub();
+    };
   }, []);
 
   return (
@@ -92,10 +95,11 @@ const App = () => {
               Logout
             </Button>
             <VStack padding={"5px"} overflowY={"auto"} h={"full"} w={"full"}>
-              {messages.map((item) => {
+              {messages.map((item, index) => {
                 return (
                   <Message
-                    user={item.uri === user.uid ? "me" : "other"}
+                    key={index}
+                    user={item.uid === user.uid ? "other" : "me"}
                     text={item.text}
                     uri={item.uri}
                   />

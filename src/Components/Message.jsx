@@ -1,11 +1,7 @@
 import { Avatar, HStack, Text } from "@chakra-ui/react";
 import React, { useEffect } from "react";
 
-const Message = ({ text, user = "other", uri }) => {
-  useEffect(() => {
-    console.log("heelo");
-  }, []);
-
+const Message = ({ text, user, uri }) => {
   return (
     <HStack
       maxWidth={"300"}
@@ -39,6 +35,7 @@ const Message = ({ text, user = "other", uri }) => {
 
       {user === "other" && (
         <Avatar
+          src={uri}
           position={"absolute"}
           bottom={"1"}
           right={"2"}
